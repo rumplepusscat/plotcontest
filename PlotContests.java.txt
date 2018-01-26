@@ -1,0 +1,236 @@
+package me.jwonacy;
+
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
+
+
+public class PlotContests extends JavaPlugin {
+	
+	public static String getCurrentTimeStamp() {
+	    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    Date now = new Date();
+	    String strDate = sdfDate.format(now);
+	    return strDate;
+	}
+
+	@Override
+	public void onEnable() {
+		getLogger().info("Hello BroCraft! Plot Contests by jwonacy has been enabled!");
+		getConfig().options().copyDefaults(true);
+		saveConfig();
+		reloadConfig();
+		PluginManager pm = getServer().getPluginManager();
+		pm.addPermission(enterPermission);
+		pm.addPermission(donkeyPermission);
+		pm.addPermission(reloadPermission);
+		pm.addPermission(listPermission);
+		
+	}
+
+	@Override
+	public void onDisable() {
+		getLogger().info("Goodbye BroCraft! Plot Contests by jwonacy has been disabled!");
+	}
+	
+
+public List<String> getTextFromFile() {
+
+		File file = new File(getDataFolder(), "entries.txt");
+
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        
+        List<String> text = new ArrayList<String>();
+        
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                if (line == null) {
+                    continue;
+                }
+                text.add(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return text;
+    }
+
+	public void logToFile (String message) {
+		 
+	    
+		 
+        try
+        {
+            File dataFolder = getDataFolder();
+            if(!dataFolder.exists())
+            {
+                dataFolder.mkdir();
+            }
+ 
+            File saveTo = new File(getDataFolder(), "entries.txt");
+            if (!saveTo.exists())
+            {
+                saveTo.createNewFile();
+            }
+ 
+ 
+            FileWriter fw = new FileWriter(saveTo, true);
+ 
+            PrintWriter pw = new PrintWriter(fw);
+ 
+            pw.println(message);
+ 
+            pw.flush();
+ 
+            pw.close();
+ 
+        } catch (IOException e)
+        {
+ 
+            e.printStackTrace();
+ 
+        }
+ 
+    }
+	
+	public Permission enterPermission = new Permission("plotcontest.enter");
+	public Permission donkeyPermission = new Permission("plotcontest.donkey");
+	public Permission reloadPermission = new Permission("plotcontest.reload");
+	public Permission listPermission = new Permission("plotcontest.list");
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		
+		
+		
+		if (cmd.getName().equalsIgnoreCase("pcontest") && sender instanceof Player) {
+			
+			if (args.length == 0) {
+			
+				sender.sendMessage("------------------------------------------");
+				sender.sendMessage(ChatColor.GOLD + "/pcontest enter <plot ID> <username> - enter this month's plot contest");
+				sender.sendMessage(ChatColor.GOLD + "/pcontest reload - reload plot contests");
+				sender.sendMessage(ChatColor.GOLD + "/plotcontest list - list current entries this month");
+				//sender.sendMessage(ChatColor.GOLD + "/plotcontest clearlist - clear the list of entries");
+				sender.sendMessage("------------------------------------------");
+				
+				return true;
+				
+			}
+			
+			if (args[0].equalsIgnoreCase("reload") && sender.hasPermission("plotcontest.reload")) {
+				
+				reloadConfig();
+				
+				sender.sendMessage(ChatColor.GREEN + "Config Reloaded!");
+				
+				return true;
+						
+			}
+			
+			if (args[0].equalsIgnoreCase("donkey") && sender.hasPermission("plotcontest.donkey")) {
+
+			
+				
+				sender.sendMessage(ChatColor.LIGHT_PURPLE + "LOL");
+				sender.sendMessage(ChatColor.DARK_PURPLE + "MLG, OYU ARE A GOOD'ON");
+				sender.sendMessage(ChatColor.LIGHT_PURPLE + "OMG, DO YOU KNOW DOUGGGHHAN");
+				sender.sendMessage(ChatColor.DARK_PURPLE + "m9 you be a donkeeeeh?");
+				sender.sendMessage(ChatColor.LIGHT_PURPLE + "LOL");
+				sender.sendMessage(ChatColor.DARK_PURPLE + "YOU GOT NO IDEEEEEAAAAA!!!!");
+				sender.sendMessage(ChatColor.LIGHT_PURPLE + "if u find did den go die");
+				sender.sendMessage(ChatColor.DARK_PURPLE + "DONKEEEEEEEEEEYS");
+				return true;
+				
+			}
+			
+			if (args[0].equalsIgnoreCase("list") && sender.hasPermission("plotcontest.list")) {
+				
+				sender.sendMessage(ChatColor.GREEN + "Reading list of entries in entries.txt");
+
+				getTextFromFile().forEach(sender::sendMessage);
+				
+				return true;
+			}
+			
+			if (args[0].equalsIgnoreCase("enter") && sender.hasPermission("plotcontest.enter")) {
+				
+				if (args.length == 3) {
+					
+					if (sender.getName().equalsIgnoreCase(args[2])) {
+						
+						if (args[1].indexOf(";")!=-1) { 
+							
+							sender.sendMessage(ChatColor.GREEN + "Contratulations, " + sender.getName() + " you have succesfully entered the plot contest!");
+
+							logToFile(getCurrentTimeStamp() + " " + args[1] + " " + args[2]);
+							
+							return true;
+							
+						}
+						
+						else {
+							
+							sender.sendMessage(ChatColor.DARK_RED + "Please enter a valid Plot ID");
+							return true;
+							
+						}
+						
+					}
+					
+					else {
+						
+						sender.sendMessage(ChatColor.DARK_RED + "Please only enter your own username");
+						return true;
+						
+					}
+					 
+				}
+				
+				else {
+					
+					sender.sendMessage(ChatColor.DARK_RED + "Please enter your Plot ID and username");
+					return true;
+					
+				}		
+		
+			}
+			
+			else {
+				
+				sender.sendMessage(ChatColor.DARK_RED + "Incorrect usage or permission level! Type /pcontest to see correct usage and ensure you are only using permitted commands!" );
+				return true;
+				
+			}
+			
+		}
+		
+		return false;
+	
+
+
+}	}
