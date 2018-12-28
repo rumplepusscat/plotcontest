@@ -32,7 +32,7 @@ public class PlotContests extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		getLogger().info("Hello BroCraft! Plot Contests by jwonacy has been enabled!");
+		getLogger().info("Hello BroCraft! Plot Contests by 615283 has been enabled!");
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 		reloadConfig();
@@ -46,7 +46,7 @@ public class PlotContests extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		getLogger().info("Goodbye BroCraft! Plot Contests by jwonacy has been disabled!");
+		getLogger().info("Goodbye BroCraft! Plot Contests by 615283 has been disabled!");
 	}
 	
 
